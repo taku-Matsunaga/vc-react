@@ -1,4 +1,5 @@
-// JS→Reactリファクタリング課題 ver2.0
+// JS→Reactリファクタリング課題
+// 作業時間 30分程度
 
 import { useState } from "react";
 import "./App.css";
@@ -26,14 +27,15 @@ const imgArry = [
   },
 ];
 
-// コンポーネント名を変更しました。
-// mapで生成した1枚1枚の固有値をindexで管理していましたが、今回は決め打ちのデータしか返ってこないと担保されているのでindexではなくtitle名で比較することにし、引数を一つ減らしました。
-const ImagePanel = ({ img, activeTitle, handleClickActiveTitle }) => {
+// 画像パネルのコンポーネント
+{/* TODO: コメントで画像パネルと書いてるので、Panel とか ImagePanel という命名の方が分かりやすいですね */}
+{/* TODO: あまり引数が多くならないようにしたいですね。 */}
+const Item = ({ img, active, addActiveClass, index }) => {
   return (
     <div
-      className={`panel ${activeTitle === img.title ? "active" : ""}`}
+      className={`panel ${active === index ? "active" : ""}`}
       style={{ backgroundImage: `url(${img.src})` }}
-      onClick={() => handleClickActiveTitle(img.title)}
+      onClick={() => addActiveClass(index)}
     >
       <h3>{img.title}</h3>
     </div>
@@ -41,14 +43,15 @@ const ImagePanel = ({ img, activeTitle, handleClickActiveTitle }) => {
 };
 
 function App() {
-  // 上記に伴いindexから変更してtitle名を保持するものに変更しました。
-  const [activeTitle, setActiveTitle] = useState("");
+  // activeクラスを付与するItemのindexを管理
+  // TODO: active という state は Boolean っぽく見えますが、実際には index が入ってるので、
+  // 名前を activeIndex とか activeId とすると、「数字が入ってそう」って見えると思います。
+  const [active, setActive] = useState("");
 
-  // stateが空か既に保有している値と異なるpropsが返ってきた場合は取得したpropsを格納し、同じpropsが返ってきた場合は空にする記述をして、toggle機能を実装しています。
-  const handleClickActiveTitle = (props) => {
-    !activeTitle || activeTitle !== props
-      ? setActiveTitle(props)
-      : setActiveTitle("");
+  // 取得したindexに更新
+  // TODO: setActive しかしないならわざわざ関数化しなくても良いのではと思います。
+  const addActiveClass = (props) => {
+    setActive(props);
   };
 
   return (
@@ -56,11 +59,12 @@ function App() {
       <div className="container">
         {imgArry.map((img, index) => {
           return (
-            <ImagePanel
+            <Item
               key={index}
+              index={index}
               img={img}
-              activeTitle={activeTitle}
-              handleClickActiveTitle={handleClickActiveTitle}
+              active={active}
+              addActiveClass={addActiveClass}
             />
           );
         })}
